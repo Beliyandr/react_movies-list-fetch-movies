@@ -1,10 +1,33 @@
 import React from 'react';
 import './FindMovie.scss';
+import classNames from 'classnames';
+import { MovieData } from '../../types/MovieData';
+import { MovieCard } from '../MovieCard';
+import { Movie } from '../../types/Movie';
 
-export const FindMovie: React.FC = () => {
+type FindMovieProps = {
+  query: string;
+  setQuery: (value: string) => void;
+  movie: Movie;
+  getMoviesFromServer: (
+    e: React.MouseEvent<HTMLFormElement, MouseEvent>,
+  ) => void;
+};
+
+export const FindMovie: React.FC<FindMovieProps> = ({
+  query,
+  setQuery,
+  movie,
+  getMoviesFromServer = () => {},
+}) => {
   return (
     <>
-      <form className="find-movie">
+      <form
+        className="find-movie"
+        onClick={e => {
+          getMoviesFromServer(e);
+        }}
+      >
         <div className="field">
           <label className="label" htmlFor="movie-title">
             Movie title
@@ -17,6 +40,8 @@ export const FindMovie: React.FC = () => {
               id="movie-title"
               placeholder="Enter a title to search"
               className="input is-danger"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
             />
           </div>
 
@@ -30,7 +55,10 @@ export const FindMovie: React.FC = () => {
             <button
               data-cy="searchButton"
               type="submit"
-              className="button is-light"
+              className={classNames('button is-light', {
+                // 'is-loading': !query,  /////////////// todo
+              })}
+              disabled={query ? false : true}
             >
               Find a movie
             </button>
@@ -50,7 +78,7 @@ export const FindMovie: React.FC = () => {
 
       <div className="container" data-cy="previewContainer">
         <h2 className="title">Preview</h2>
-        {/* <MovieCard movie={movie} /> */}
+        {movie && <MovieCard movie={movie} />}
       </div>
     </>
   );
