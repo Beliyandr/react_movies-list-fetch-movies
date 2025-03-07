@@ -7,9 +7,14 @@ import { Movie } from './types/Movie';
 export const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  useEffect(() => {
-
-  }, []);
+  function addToFavorite(movie) {
+    setMovies(prevMovies => {
+      if (!prevMovies.find(item => item.imdbId === movie.imdbId)) {
+        return [...prevMovies, movie];
+      }
+      return [...prevMovies];
+    });
+  }
 
   return (
     <div className="page">
@@ -18,7 +23,7 @@ export const App = () => {
       </div>
 
       <div className="sidebar">
-        <FindMovie />
+        <FindMovie addToFavorite={addToFavorite} />
       </div>
     </div>
   );

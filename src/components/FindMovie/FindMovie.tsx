@@ -4,20 +4,49 @@ import { Movie } from '../../types/Movie';
 import classNames from 'classnames';
 import { getMovie } from '../../api';
 import { MovieCard } from '../MovieCard';
+import { MovieData } from '../../types/MovieData';
+import imdbLogo from '/images/imdb-logo.jpeg';
 
-export const FindMovie: React.FC = () => {
+type Props = {
+  addToFavorite: (movie: Movie) => void;
+};
+
+export const FindMovie: React.FC<Props> = ({ addToFavorite }) => {
   const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [foundMovies, setFoundMovies] = useState<Movie[]>([]);
+  const [foundMovies, setFoundMovies] = useState<MovieData | {}>();
+  const [loading, setLoading] = useState(false);
 
   function findMovie(event: React.FormEvent) {
     event.preventDefault();
-    getMovie(title).then(movie => {
-      if (movie) {
-        setFoundMovies(movie);
-      }
-    });
-    console.log(foundMovies);
+    setLoading(true);
+    getMovie(title)
+      .then(movie => {
+        if (movie.Title) {
+          const { Title, Plot, Poster, imdbID } = movie;
+
+          const newMovie = {
+            title: Title,
+            description: Plot,
+            imgUrl: Poster || imdbLogo,
+            imdbUrl: imdbLogo,
+            imdbId: imdbID,
+          };
+
+          setFoundMovies(newMovie);
+          setErrorMessage('');
+        } else {
+          setErrorMessage(movie);
+        }
+      })
+      .catch(e => {
+        setErrorMessage(e);
+        console.log(errorMessage);
+      })
+      .finally(() => {
+        setLoading(false);
+        console.log(foundMovies);
+      });
   }
 
   return (
@@ -51,7 +80,9 @@ export const FindMovie: React.FC = () => {
             <button
               data-cy="searchButton"
               type="submit"
-              className="button is-light"
+              className={classNames('button is-light', {
+                'is-loading': loading,
+              })}
               onClick={() => {}}
               disabled={!title}
             >
@@ -60,11 +91,15 @@ export const FindMovie: React.FC = () => {
           </div>
 
           <div className="control">
-            {!!foundMovies.length && (
+            {!!foundMovies && (
               <button
                 data-cy="addButton"
                 type="button"
                 className="button is-primary"
+                onClick={() => {
+                  addToFavorite(foundMovies);
+                  setFoundMovies({});
+                }}
               >
                 Add to the list
               </button>
@@ -75,7 +110,7 @@ export const FindMovie: React.FC = () => {
 
       <div className="container" data-cy="previewContainer">
         <h2 className="title">Preview</h2>
-        {foundMovies && <MovieCard movie={foundMovies} />}
+        {foundMovies?.title && <MovieCard movie={foundMovies} />}
       </div>
     </>
   );
