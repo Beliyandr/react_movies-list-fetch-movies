@@ -14,7 +14,7 @@ type Props = {
 export const FindMovie: React.FC<Props> = ({ addToFavorite }) => {
   const [title, setTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [foundMovies, setFoundMovies] = useState<MovieData | {}>();
+  const [foundMovies, setFoundMovies] = useState<MovieData | null>();
   const [loading, setLoading] = useState(false);
 
   function findMovie(event: React.FormEvent) {
@@ -36,7 +36,7 @@ export const FindMovie: React.FC<Props> = ({ addToFavorite }) => {
           setFoundMovies(newMovie);
           setErrorMessage('');
         } else {
-          setErrorMessage(movie);
+          setErrorMessage("Can't find a movie with such a title");
         }
       })
       .catch(e => {
@@ -64,7 +64,9 @@ export const FindMovie: React.FC<Props> = ({ addToFavorite }) => {
               id="movie-title"
               placeholder="Enter a title to search"
               className={classNames('input', { 'is-danger': errorMessage })}
-              onChange={event => setTitle(event.target.value)}
+              onChange={event => {
+                setTitle(event.target.value), setErrorMessage('');
+              }}
             />
           </div>
 
@@ -98,7 +100,7 @@ export const FindMovie: React.FC<Props> = ({ addToFavorite }) => {
                 className="button is-primary"
                 onClick={() => {
                   addToFavorite(foundMovies);
-                  setFoundMovies({});
+                  setFoundMovies(null);
                 }}
               >
                 Add to the list
@@ -110,7 +112,7 @@ export const FindMovie: React.FC<Props> = ({ addToFavorite }) => {
 
       <div className="container" data-cy="previewContainer">
         <h2 className="title">Preview</h2>
-        {foundMovies?.title && <MovieCard movie={foundMovies} />}
+        {foundMovies && <MovieCard movie={foundMovies} />}
       </div>
     </>
   );

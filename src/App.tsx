@@ -7,7 +7,7 @@ import { Movie } from './types/Movie';
 export const App = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
 
-  function addToFavorite(movie) {
+  function addToFavorite(movie: Movie) {
     setMovies(prevMovies => {
       if (!prevMovies.find(item => item.imdbId === movie.imdbId)) {
         return [...prevMovies, movie];
